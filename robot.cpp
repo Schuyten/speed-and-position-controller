@@ -77,8 +77,8 @@ void Robot::controllerHook()
   float Kd2 = 0;
   float Ts = 0.01;
 
-  float velocity1 = -(_position1[1] - _position1[0])/(Ts);
-  float velocity2 = -(_position2[1] - _position2[0])/(Ts);
+  float velocity1 = -wheelSpeedA();
+  float velocity2 = wheelSpeedB();
 
   _position1[1] = _position1[0];
   _position1[0] = x1;
@@ -108,7 +108,8 @@ void Robot::controllerHook()
     // or use input
     //xref(0) = System.getGPinFloat(0);
     
-    K(0) = 100.0; // Tune the K matrix for better performance
+    K(0) = 250;
+    K(1) = 100; // Tune the K matrix for better performance
     Matrix<1> v = K * (xref - _xhat);
 
     _error1[2] = _error1[1];
@@ -134,14 +135,14 @@ void Robot::controllerHook()
       u_bridge_left = 6000;
     if (u_bridge_left < -6000)
       u_bridge_left = -6000;
-
+      
     if (u_bridge_right > 6000)
       u_bridge_right = 6000;
     if (u_bridge_right < -6000)
       u_bridge_right = -6000;
     
     //send wheel speed command
-    _motor1->setBridgeVoltage(u_bridge_left);
+    _motor1->setBridgeVoltage(-u_bridge_left);
     _motor2->setBridgeVoltage(u_bridge_right);
     
   } else {
