@@ -108,22 +108,27 @@ void Robot::controllerHook()
     // or use input
     //xref(0) = System.getGPinFloat(0);
     
-    K(0) = 1.0; // Tune the K matrix for better performance
+    K(0) = 100.0; // Tune the K matrix for better performance
     Matrix<1> v = K * (xref - _xhat);
-
-    setpoint1 = v(0);
-    setpoint2 = v(0);
 
     _error1[2] = _error1[1];
     _error1[1] = _error1[0];
-    _error1[0] = setpoint1 - velocity1;
+    _error1[0] = v(0) - velocity1;
   
     _error2[2] = _error2[1];
     _error2[1] = _error2[0];
-    _error2[0] = setpoint2 - velocity2;
+    _error2[0] = v(0) - velocity2;
     
     u_bridge_left = _input1[2] + (-Kp1+Ki1*Ts/2+Kd1*2/Ts)*_error1[2] + (Ki1*Ts-4*Kd1/Ts)*_error1[1] + (Kd1*2/Ts+Ki1*Ts/2+Kp1)*_error1[0]; //<--- with v(0) as reference, implement the speed controller designed in assignment 2.
     u_bridge_right = _input2[2] + (-Kp2+Ki2*Ts/2+Kd2*2/Ts)*_error2[2] + (Ki2*Ts-4*Kd2/Ts)*_error2[1] + (Kd2*2/Ts+Ki2*Ts/2+Kp2)*_error2[0]; //<--- with v(0) as reference, implement the speed controller designed in assignment 2.
+
+    _input1[2] = _input1[1];
+    _input1[1] = _input1[0];
+    _input1[0] = u_bridge_left;
+
+    _input2[2] = _input2[1];
+    _input2[1] = _input2[0];
+    _input2[0] = u_bridge_right;
 
     if (u_bridge_left > 6000)
       u_bridge_left = 6000;
